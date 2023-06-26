@@ -1,10 +1,12 @@
-## Django ORM Model to DataClass object
-Package that helps easy convert Django ORM models to DTO(Dataclass) object.
+## Auto dataclass
+Package that helps easy data to DTO(Dataclass) object.
+Currently, the package supports conversion of 
+Django model to dataclass object.
 
 
 ### Installation
 ```shell
-pip install djangomodel-dataclass
+pip install auto_dataclass
 ```
 
 ### Quickstart
@@ -40,7 +42,7 @@ class ProductDataclass:
 
 ```shell
 # repository.py
-from to_dto_converters.dj_model_to_dataclass import FromOrmToDataclass
+from auto_dataclass.dj_model_to_dataclass import FromOrmToDataclass
 
 from dto import ProductDataclass
 from models import Product
@@ -48,10 +50,10 @@ from models import Product
 converter = FromOrmToDataclass()
 
 def get_product(product_id: int) -> ProductDataclass:
-    product = Product.objects \
+    product_instance = Product.objects \
                     .prefetch_related('photos') \
                     .get(pk=product_id)      
-    retrun converter.to_dto(product, ProductDataclass)
+    retrun converter.to_dto(product_instance, ProductDataclass)
 ```
 
 ### Recursive Django model relation
@@ -79,7 +81,7 @@ class CategoriesDTO:
 ```shell
 # repository.py
 from itertools import repeat
-from to_dto_converters.dj_model_to_dataclass import FromOrmToDataclass
+from auto_dataclass.dj_model_to_dataclass import FromOrmToDataclass
 
 from models import Category
 from dto import ProductDataclass
@@ -87,6 +89,6 @@ from dto import ProductDataclass
 converter = FromOrmToDataclass()
 
 def get_categories(self) -> Iterable[CategoriesDTO]:
-    categories = Category.objects.filter(parent__isnull=True)
-    return map(converter.to_dto, categories, repeat(CategoriesDTO), repeat(is_recursive=True))
+    category_instances = Category.objects.filter(parent__isnull=True)
+    return map(converter.to_dto, category_instances, repeat(CategoriesDTO), repeat(is_recursive=True))
 ```

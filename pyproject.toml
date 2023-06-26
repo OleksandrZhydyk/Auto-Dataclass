@@ -3,7 +3,7 @@ requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name = "to_dto_converters"
+name = "auto_dataclass"
 authors = [{name = "Oleksandr Zhydyk", email = "zhydykalex@ukr.net"}]
 readme = "README.md"
 license = {file = "LICENSE"}
@@ -11,4 +11,4 @@ classifiers = ["License :: OSI Approved :: MIT License"]
 dynamic = ["version", "description"]
 
 [project.urls]
-Home = "https://github.com/OleksandrZhydyk/Django-ORM-DTO-Converter.git"
+Home = "https://github.com/OleksandrZhydyk/Auto-Dataclass.git"

@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from unittest.mock import Mock, MagicMock
 from django.db.models import Model
 
-from to_dto_converters.dj_model_to_dataclass import FromOrmToDataclass
+from auto_dataclass.dj_model_to_dataclass import FromOrmToDataclass
 
 
 class TestToDTOFuncRecursiveRelations(TestCase):
