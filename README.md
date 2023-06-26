@@ -40,7 +40,7 @@ class ProductDataclass:
 
 ```shell
 # repository.py
-from converters.dj_model_to_dataclass import FromOrmToDataclass
+from to_dto_converters.dj_model_to_dataclass import FromOrmToDataclass
 
 from dto import ProductDataclass
 from models import Product
@@ -79,7 +79,7 @@ class CategoriesDTO:
 ```shell
 # repository.py
 from itertools import repeat
-from converters.dj_model_to_dataclass import FromOrmToDataclass
+from to_dto_converters.dj_model_to_dataclass import FromOrmToDataclass
 
 from models import Category
 from dto import ProductDataclass

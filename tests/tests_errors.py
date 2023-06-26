@@ -5,7 +5,7 @@ from unittest.mock import Mock, MagicMock
 
 from django.db.models import Model, QuerySet
 
-from converters.dj_model_to_dataclass import FromOrmToDataclass
+from to_dto_converters.dj_model_to_dataclass import FromOrmToDataclass
 
 
 class TestErrorToDTOFunc(TestCase):
