@@ -1,3 +1,21 @@
+[tool.poetry]
+name = "auto_dataclass"
+version = "0.1.1"
+description = ""
+authors = ["AlexandrZhydyk <zhydykalex@ukr.net>"]
+readme = "README.md"
+packages = [{include = "auto_dataclass"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+django = "^4.2.2"
+flake8 = "^6.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
 [build-system]
 requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
