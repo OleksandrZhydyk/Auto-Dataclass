@@ -1,17 +1,14 @@
-[tool.poetry]
-name = "dj-orm-to-dto"
-version = "0.1.0"
-description = ""
-authors = ["AlexandrZhydyk <zhydykalex@ukr.net>"]
-readme = "README.md"
-packages = [{include = "dj_orm_to_dto"}]
-
-[tool.poetry.dependencies]
-python = "^3.10"
-django = "^4.2.2"
-flake8 = "^6.0.0"
-
-
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "converters"
+authors = [{name = "Oleksandr Zhydyk", email = "zhydykalex@ukr.net"}]
+readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = ["License :: OSI Approved :: MIT License"]
+dynamic = ["version", "description"]
+
+[project.urls]
+Home = "https://github.com/OleksandrZhydyk/Django-ORM-DTO-Converter.git"
