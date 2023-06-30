@@ -1,3 +1,3 @@
-"""The package, helps automatically transform data to DTO (DataClass) object"""
+"""The package, helps to automatically transform data to DTO (DataClass) object"""
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"

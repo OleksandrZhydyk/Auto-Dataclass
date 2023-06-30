@@ -64,31 +64,6 @@ class TestErrorToDTOFunc(TestCase):
             str(cm.exception)
         )
 
-    def test_error_to_dto_not_checked_is_recursive_arg(self):
-        @dataclass
-        class RecursiveTestDataclass:
-            id: int
-            dc: 'RecursiveTestDataclass'
-
-        outer_mock_model = Mock(spec=Model)
-        inner_mock_model = Mock(spec=Model)
-        inner_mock_model.id = 2
-        inner_mock_model.dc = None
-        outer_mock_model.id = 1
-        outer_mock_model.dc = inner_mock_model
-
-        with self.assertRaises(TypeError) as cm:
-            self.converter.to_dto(
-                outer_mock_model,
-                RecursiveTestDataclass
-            )
-        self.assertEqual(
-            f"The dataclass {RecursiveTestDataclass} has recursive or future relation"
-            f" that was not defined. Please define argument 'is_recursive' for recursive relation or "
-            f"'future_dataclasses' for future relations",
-            str(cm.exception)
-        )
-
     def test_error_to_dto_incorrect_future_dataclasses_arg_type(self):
         @dataclass
         class RecursiveTestDataclass:
@@ -174,6 +149,53 @@ class TestErrorToDTOFunc(TestCase):
         self.assertEqual(
             "The 'future_dataclasses' arguments should be a list of 'dataclass' classes. "
             f"Received {FutureTestClass} with type {type(FutureTestClass)}.", str(cm.exception)
+        )
+
+    def test_error_missed_future_dataclasses_arg(self):
+        @dataclass
+        class RecursiveTestDataclass:
+            id: int
+            dc: 'FutureTestDataclass'
+
+        @dataclass
+        class FutureTestDataclass:
+            id: int
+
+        outer_mock_model = Mock(spec=Model)
+        inner_mock_model = Mock(spec=Model)
+        inner_mock_model.id = 2
+        inner_mock_model.dc = None
+        outer_mock_model.id = 1
+        outer_mock_model.dc = inner_mock_model
+
+        with self.assertRaises(TypeError) as cm:
+            self.converter.to_dto(
+                outer_mock_model,
+                RecursiveTestDataclass
+            )
+        self.assertEqual(
+            f"The 'future_dataclasses' arguments must be defined for future reference 'FutureTestDataclass'.",
+            str(cm.exception)
+        )
+
+    def test_error_to_dto_incorrect_field_type(self) -> None:
+
+        InnerTestDataclass = self.TestDataclass
+
+        @dataclass
+        class OuterTestDataclass:
+            id: int
+            dc: List[InnerTestDataclass]
+
+        mock_model = Mock(spec=Model)
+        mock_model.id = 1
+        mock_model.dc = self.get_list_db_model_objects()[0]
+
+        with self.assertRaises(TypeError) as cm:
+            self.converter.to_dto(mock_model, OuterTestDataclass)
+        self.assertEqual(
+            f"The {mock_model.dc} is not iterable, but specified type is List[{InnerTestDataclass}]",
+            str(cm.exception)
         )
 
     @staticmethod
