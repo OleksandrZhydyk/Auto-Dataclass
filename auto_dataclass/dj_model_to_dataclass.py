@@ -1,10 +1,12 @@
 import dataclasses
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, is_dataclass
+from types import UnionType
 from typing import Type, ForwardRef, List, get_origin, Union
 from django.db.models.manager import Manager
 from django.db.models import Model
 
+from auto_dataclass.exceptions import ConversionError
 
 T = Type["T"]
 
@@ -52,13 +54,14 @@ class FromOrmToDataclass(ToDTOConverter):
     def _is_field_name_exists_in_data(data: Model, field_name: str) -> bool | None:
         if hasattr(data, field_name):
             return True
-        raise AttributeError(
+        raise ConversionError(
             f"Field name '{field_name}' doesn't exist in {data}"
         )
 
     def _get_origin_field_type(self, field_type):
         is_list = False
-        if get_origin(field_type) is Union:
+        origin_type = get_origin(field_type)
+        if origin_type is Union or origin_type is UnionType:
             field_type = field_type.__args__[0]
         if hasattr(field_type, "__origin__") and field_type.__origin__ is list:
             field_type = field_type.__args__[0]
@@ -81,7 +84,7 @@ class FromOrmToDataclass(ToDTOConverter):
             for orm_obj in field_data.all():
                 values_lst.append(self._to_dataclass_obj(orm_obj, field_type))
         except AttributeError:
-            raise TypeError(f"The {field_data} is not iterable, but specified type is List[{field_type}]")
+            raise ConversionError(f"The {field_data} is not iterable, but specified type is List[{field_type}]")
         return values_lst
 
     def _get_future_object_type(self, obj_type: str) -> dataclass:
@@ -89,27 +92,27 @@ class FromOrmToDataclass(ToDTOConverter):
             for dc in self._future_dataclasses:
                 if dc.__name__ == obj_type:
                     return dc
-            raise TypeError(
-                f"The 'future_dataclasses' arguments must be defined for future reference '{obj_type}'."
+            raise ConversionError(
+                f"The 'future_dataclasses' argument must be defined for future reference '{obj_type}'."
             )
 
     @staticmethod
     def _check_dataclass_arg(dc: dataclass) -> dataclass:
         if dataclasses.is_dataclass(dc):
             return dc
-        raise TypeError(f"The 'dc' arg should be dataclass type, not {type(dc)} type")
+        raise ConversionError(f"The 'dc' arg should be dataclass type, not {type(dc)} type")
 
     def _check_future_dataclasses_arg(self, future_dataclasses: List[dataclass]) -> None:
         if future_dataclasses is None:
             return
         if not isinstance(future_dataclasses, list):
-            raise TypeError(
+            raise ConversionError(
                 f"The 'future_dataclasses' arguments should be a list of 'dataclass' classes or "
                 f"None type, not {type(future_dataclasses)}."
             )
         for dc in future_dataclasses:
             if not is_dataclass(dc):
-                raise TypeError(
+                raise ConversionError(
                     f"The 'future_dataclasses' arguments should be a list of 'dataclass' classes. "
                     f"Received {dc} with type {type(dc)}."
                 )
@@ -119,6 +122,6 @@ class FromOrmToDataclass(ToDTOConverter):
     def _is_data_dj_model_type(data: Model):
         if isinstance(data, Model):
             return data
-        raise TypeError(
+        raise ConversionError(
             f"Data must be a django.db.models.Model type. Instead, received '{type(data)}'"
         )

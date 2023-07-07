@@ -102,3 +102,25 @@ class TestToDTOFuncRecursiveRelations(TestCase):
         self.assertEqual(result.id, 1)
         self.assertEqual(result.dc[1], RecursiveTestDataclass(id=2, dc=None, double_dc=None))
         self.assertEqual(result.double_dc, RecursiveDataclass(id=3, name="name"))
+
+    def test_to_dto_recursive_relation_optional(self) -> None:
+        @dataclass
+        class RecursiveTestDataclass:
+            id: int
+            dc: Optional['RecursiveTestDataclass']
+
+        outer_mock_model = Mock(spec=Model)
+        inner_mock_model = Mock(spec=Model)
+        inner_mock_model.id = 2
+        inner_mock_model.dc = None
+        outer_mock_model.id = 1
+        outer_mock_model.dc = inner_mock_model
+
+        result = self.converter.to_dto(
+            outer_mock_model,
+            RecursiveTestDataclass
+        )
+
+        self.assertIsInstance(result, RecursiveTestDataclass)
+        self.assertEqual(result.id, 1)
+        self.assertEqual(result.dc, RecursiveTestDataclass(id=2, dc=None))

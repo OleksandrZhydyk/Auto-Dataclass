@@ -6,6 +6,7 @@ from unittest.mock import Mock, MagicMock
 from django.db.models import Model, QuerySet
 
 from auto_dataclass.dj_model_to_dataclass import FromOrmToDataclass
+from auto_dataclass.exceptions import ConversionError
 
 
 class TestErrorToDTOFunc(TestCase):
@@ -20,10 +21,10 @@ class TestErrorToDTOFunc(TestCase):
     def test_error_to_dto_incorrect_data_type(self) -> None:
         queryset = Mock(spec=QuerySet)
 
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ConversionError):
             self.converter.to_dto({"test": "dict"}, self.TestDataclass)
 
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ConversionError):
             self.converter.to_dto(queryset, self.TestDataclass)
 
     def test_error_to_dto_incorrect_dataclass(self) -> None:
@@ -35,7 +36,7 @@ class TestErrorToDTOFunc(TestCase):
         mock_model.id = 1
         mock_model.name = "first"
 
-        with self.assertRaises(TypeError) as cm:
+        with self.assertRaises(ConversionError) as cm:
             self.converter.to_dto(mock_model, IsNotDataclass)
         self.assertEqual(
             f"The 'dc' arg should be dataclass type, not {type(IsNotDataclass)} type",
@@ -57,7 +58,7 @@ class TestErrorToDTOFunc(TestCase):
         mock_model.id = 1
         mock_model.dc = mock_related_manager
 
-        with self.assertRaises(AttributeError) as cm:
+        with self.assertRaises(ConversionError) as cm:
             self.converter.to_dto(mock_model, OuterTestDataclass)
         self.assertEqual(
             f"Field name 'non_existed_field_name' doesn't exist in {mock_model}",
@@ -83,7 +84,7 @@ class TestErrorToDTOFunc(TestCase):
 
         future_dataclass = "future_dataclasses"
 
-        with self.assertRaises(TypeError) as cm:
+        with self.assertRaises(ConversionError) as cm:
             self.converter.to_dto(
                 outer_mock_model,
                 RecursiveTestDataclass,
@@ -113,7 +114,7 @@ class TestErrorToDTOFunc(TestCase):
 
         future_dataclass = "future_dataclasses"
 
-        with self.assertRaises(TypeError) as cm:
+        with self.assertRaises(ConversionError) as cm:
             self.converter.to_dto(
                 outer_mock_model,
                 RecursiveTestDataclass,
@@ -140,7 +141,7 @@ class TestErrorToDTOFunc(TestCase):
         outer_mock_model.id = 1
         outer_mock_model.dc = inner_mock_model
 
-        with self.assertRaises(TypeError) as cm:
+        with self.assertRaises(ConversionError) as cm:
             self.converter.to_dto(
                 outer_mock_model,
                 RecursiveTestDataclass,
@@ -168,13 +169,13 @@ class TestErrorToDTOFunc(TestCase):
         outer_mock_model.id = 1
         outer_mock_model.dc = inner_mock_model
 
-        with self.assertRaises(TypeError) as cm:
+        with self.assertRaises(ConversionError) as cm:
             self.converter.to_dto(
                 outer_mock_model,
                 RecursiveTestDataclass
             )
         self.assertEqual(
-            f"The 'future_dataclasses' arguments must be defined for future reference 'FutureTestDataclass'.",
+            f"The 'future_dataclasses' argument must be defined for future reference 'FutureTestDataclass'.",
             str(cm.exception)
         )
 
@@ -191,7 +192,7 @@ class TestErrorToDTOFunc(TestCase):
         mock_model.id = 1
         mock_model.dc = self.get_list_db_model_objects()[0]
 
-        with self.assertRaises(TypeError) as cm:
+        with self.assertRaises(ConversionError) as cm:
             self.converter.to_dto(mock_model, OuterTestDataclass)
         self.assertEqual(
             f"The {mock_model.dc} is not iterable, but specified type is List[{InnerTestDataclass}]",

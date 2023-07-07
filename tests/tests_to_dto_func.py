@@ -85,6 +85,20 @@ class TestToDataclassObjFunc(TestCase):
         self.assertIsInstance(result, OuterTestDataclass)
         self.assertEqual(result.dc, None)
 
+    def test__to_dto_db_related_object_or_none(self) -> None:
+        InnerTestDataclass = self.TestDataclass
+
+        @dataclass
+        class OuterTestDataclass:
+            dc: InnerTestDataclass | None = None
+
+        mock_model = Mock(spec=Model)
+        mock_model.dc = self.get_db_model_object()
+        result = self.converter.to_dto(mock_model, OuterTestDataclass)
+
+        self.assertIsInstance(result, OuterTestDataclass)
+        self.assertEqual(result.dc, InnerTestDataclass(id=1, name="first"))
+
     @staticmethod
     def get_db_model_object():
         model = Mock(spec=Model)
