@@ -33,7 +33,7 @@ class FromOrmToDataclass(ToDTOConverter):
     def _to_dataclass_obj(self, data: Model, dc: dataclass) -> dataclass:
         obj_for_dataclass = {}
         for field in dataclasses.fields(dc):
-            if self._is_field_name_exists_in_data(data, field.name):
+            if self._is_field_name_exists_in_data(data, field):
 
                 field_data = getattr(data, field.name)
                 origin_type, is_list = self._get_origin_field_type(field.type)
@@ -48,15 +48,20 @@ class FromOrmToDataclass(ToDTOConverter):
                     )
                 else:
                     obj_for_dataclass[field.name] = field_data
+            else:
+                if field.default is dataclasses.MISSING:
+                    raise ConversionError(
+                        f"Field name '{field.name}' doesn't exist in {data}"
+                    )
+                obj_for_dataclass[field.name] = field.default
+
         return dc(**obj_for_dataclass)
 
     @staticmethod
-    def _is_field_name_exists_in_data(data: Model, field_name: str) -> bool | None:
-        if hasattr(data, field_name):
+    def _is_field_name_exists_in_data(data: Model, field: dataclasses.Field) -> bool | None:
+        if hasattr(data, field.name):
             return True
-        raise ConversionError(
-            f"Field name '{field_name}' doesn't exist in {data}"
-        )
+        return False
 
     def _get_origin_field_type(self, field_type):
         is_list = False
