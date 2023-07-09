@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List
 from unittest import TestCase
 from unittest.mock import Mock, MagicMock
@@ -111,6 +111,27 @@ class TestToDataclassObjFunc(TestCase):
 
         self.assertIsInstance(result, OuterTestDataclass)
         self.assertEqual(result.dc, None)
+
+    def test_to_dto_list_of_python_types_with_default_value(self) -> None:
+        @dataclass
+        class TestDataclass:
+            id: int
+            name: List[str] = field(default_factory=list)
+
+        @dataclass
+        class OuterTestDataclass:
+            dc: TestDataclass
+
+        mock_model_with_list = Mock(spec=Model)
+        mock_model_with_list.id = 1
+        mock_model = Mock(spec=Model)
+        mock_model.dc = mock_model_with_list
+
+        result = self.converter.to_dto(mock_model, OuterTestDataclass)
+
+        self.assertIsInstance(result, OuterTestDataclass)
+        self.assertIsInstance(result.dc, TestDataclass)
+        self.assertEqual(result.dc.name, [])
 
     @staticmethod
     def get_db_model_object():

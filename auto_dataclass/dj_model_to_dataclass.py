@@ -49,11 +49,7 @@ class FromOrmToDataclass(ToDTOConverter):
                 else:
                     obj_for_dataclass[field.name] = field_data
             else:
-                if field.default is dataclasses.MISSING:
-                    raise ConversionError(
-                        f"Field name '{field.name}' doesn't exist in {data}"
-                    )
-                obj_for_dataclass[field.name] = field.default
+                obj_for_dataclass[field.name] = self._get_default_value_or_error(field, data)
 
         return dc(**obj_for_dataclass)
 
@@ -62,6 +58,16 @@ class FromOrmToDataclass(ToDTOConverter):
         if hasattr(data, field.name):
             return True
         return False
+
+    @staticmethod
+    def _get_default_value_or_error(field: dataclasses.Field, data: Model):
+        if field.default is dataclasses.MISSING:
+            if field.default_factory is dataclasses.MISSING:
+                raise ConversionError(
+                    f"Field name '{field.name}' doesn't exist in {data}"
+                )
+            return field.default_factory()
+        return field.default
 
     def _get_origin_field_type(self, field_type):
         is_list = False
