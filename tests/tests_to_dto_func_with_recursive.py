@@ -95,7 +95,7 @@ class TestToDTOFuncRecursiveRelations(TestCase):
         result = self.converter.to_dto(
             outer_mock_model,
             RecursiveTestDataclass,
-            future_dataclasses=[RecursiveDataclass, RecursiveTestDataclass]
+            RecursiveDataclass, RecursiveTestDataclass
         )
 
         self.assertIsInstance(result, RecursiveTestDataclass)
@@ -124,3 +124,43 @@ class TestToDTOFuncRecursiveRelations(TestCase):
         self.assertIsInstance(result, RecursiveTestDataclass)
         self.assertEqual(result.id, 1)
         self.assertEqual(result.dc, RecursiveTestDataclass(id=2, dc=None))
+
+    def test_to_dto_recursive_relation_deep(self) -> None:
+        @dataclass
+        class TestDataclass:
+            id: int
+            dc: List['TestDataclass']
+
+        @dataclass
+        class RecursiveTestDataclass:
+            id: int
+            dc: List[TestDataclass]
+
+        manager_outer = MagicMock()
+        manager_inner = MagicMock()
+        manager_inner_inner = MagicMock()
+
+        outer_mock_model = Mock(spec=Model)
+        inner_mock_model = Mock(spec=Model)
+        inner_inner_mock = Mock(spec=Model)
+
+        inner_inner_mock.id = 3
+        manager_inner_inner.all.return_value = []
+        inner_inner_mock.dc = manager_inner_inner
+
+        inner_mock_model.id = 2
+        manager_inner.all.return_value = [inner_inner_mock, inner_inner_mock]
+        inner_mock_model.dc = manager_inner
+
+        outer_mock_model.id = 1
+        manager_outer.all.return_value = [inner_mock_model, inner_mock_model]
+        outer_mock_model.dc = manager_outer
+
+        result = list(
+            map(lambda queryset: self.converter.to_dto(
+                queryset, RecursiveTestDataclass, TestDataclass
+            ), [outer_mock_model, outer_mock_model]))
+
+        self.assertIsInstance(result[0], RecursiveTestDataclass)
+        self.assertIsInstance(result[0].dc, list)
+        self.assertEqual(result[1].dc[1].dc[1].id, 3)

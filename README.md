@@ -116,7 +116,7 @@ class FutureDataclass:
     name: str
 ```
 
-To handle this you just need to pass a list of future Dataclasses in `future_dataclasses` parameter.
+To handle this you just need to pass a future Dataclasses as a next arguments.
 ```shell
 from auto_dataclass.dj_model_to_dataclass import FromOrmToDataclass
 from dto import Dataclass, FutureDataclass
@@ -126,6 +126,6 @@ converter = FromOrmToDataclass()
 dataclass_with_future_relation = converter.to_dto(
     django_data_model,
     Dataclass,
-    future_dataclasses=[FutureDataclass]
+    FutureDataclass
 )
 ```

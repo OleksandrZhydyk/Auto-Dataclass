@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Iterable
 from unittest import TestCase
 from unittest.mock import Mock, MagicMock
 
@@ -132,6 +132,22 @@ class TestToDataclassObjFunc(TestCase):
         self.assertIsInstance(result, OuterTestDataclass)
         self.assertIsInstance(result.dc, TestDataclass)
         self.assertEqual(result.dc.name, [])
+
+    def test_to_dto_iterable_db_related_objects_or_none(self) -> None:
+        InnerTestDataclass = self.TestDataclass
+
+        @dataclass
+        class OuterTestDataclass:
+            dc: Iterable[InnerTestDataclass]
+
+        mock_model = Mock(spec=Model)
+        mock_related_manager = MagicMock()
+        mock_related_manager.all.return_value = map(lambda x: x, self.get_list_db_model_objects())
+        mock_model.dc = mock_related_manager
+        result = self.converter.to_dto(mock_model, OuterTestDataclass)
+
+        self.assertIsInstance(result, OuterTestDataclass)
+        self.assertEqual(result.dc[0], InnerTestDataclass(id=1, name="first"))
 
     @staticmethod
     def get_db_model_object():

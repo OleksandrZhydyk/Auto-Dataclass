@@ -88,11 +88,11 @@ class TestErrorToDTOFunc(TestCase):
             self.converter.to_dto(
                 outer_mock_model,
                 RecursiveTestDataclass,
-                future_dataclasses=future_dataclass
+                future_dataclass
             )
         self.assertEqual(
-            f"The 'future_dataclasses' arguments should be a list of 'dataclass' classes or "
-            f"None type, not {type(future_dataclass)}.", str(cm.exception)
+            f"The 'args' argument should contain 'dataclass' classes."
+            f" Received {future_dataclass} with type {type(future_dataclass)}.", str(cm.exception)
         )
 
     def test_error_incorrect_future_dataclasses_arg_type_value(self):
@@ -118,10 +118,10 @@ class TestErrorToDTOFunc(TestCase):
             self.converter.to_dto(
                 outer_mock_model,
                 RecursiveTestDataclass,
-                future_dataclasses=[future_dataclass]
+                future_dataclass
             )
         self.assertEqual(
-            "The 'future_dataclasses' arguments should be a list of 'dataclass' classes. "
+            "The 'args' argument should contain 'dataclass' classes. "
             f"Received {future_dataclass} with type {type(future_dataclass)}.", str(cm.exception)
         )
 
@@ -145,10 +145,10 @@ class TestErrorToDTOFunc(TestCase):
             self.converter.to_dto(
                 outer_mock_model,
                 RecursiveTestDataclass,
-                future_dataclasses=[FutureTestClass]
+                FutureTestClass
             )
         self.assertEqual(
-            "The 'future_dataclasses' arguments should be a list of 'dataclass' classes. "
+            "The 'args' argument should contain 'dataclass' classes. "
             f"Received {FutureTestClass} with type {type(FutureTestClass)}.", str(cm.exception)
         )
 
@@ -175,7 +175,7 @@ class TestErrorToDTOFunc(TestCase):
                 RecursiveTestDataclass
             )
         self.assertEqual(
-            f"The 'future_dataclasses' argument must be defined for future reference 'FutureTestDataclass'.",
+            f"The 'args' argument must contain future reference 'FutureTestDataclass'.",
             str(cm.exception)
         )
 
