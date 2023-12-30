@@ -1,4 +1,7 @@
 ## Auto dataclass
+![ci_badge](https://github.com/OleksandrZhydyk/Auto-Dataclass/actions/workflows/tests.yml/badge.svg)
+[![Downloads](https://static.pepy.tech/badge/auto_dataclass)](https://pepy.tech/project/auto_dataclass)
+
 AutoDataclass is a simple package that helps easy to map data into DataTransferObject for transporting that data between system layers.
 The package uses specified Dataclass structure for retrieving data and creating DTO.
 Currently, supported Django model object to Dataclass object conversion.
