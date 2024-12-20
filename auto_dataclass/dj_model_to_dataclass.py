@@ -2,7 +2,7 @@ import dataclasses
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, is_dataclass
 from types import UnionType
-from typing import Type, ForwardRef, List, get_origin, Union, Iterable, Tuple
+from typing import Type, ForwardRef, get_origin, Union
 from django.db.models.manager import Manager
 from django.db.models import Model
 
@@ -13,7 +13,7 @@ T = Type["T"]
 
 class ToDTOConverter(ABC):
     @abstractmethod
-    def to_dto(self, data, dc: dataclass):
+    def to_dto(self, data, dc: dataclass) -> dataclass:
         pass
 
 
@@ -68,7 +68,7 @@ class FromOrmToDataclass(ToDTOConverter):
             return field.default_factory()
         return field.default
 
-    def _get_origin_field_type(self, field_type):
+    def _get_origin_field_type(self, field_type) -> tuple:
         is_iterable = False
         origin_type = get_origin(field_type)
         if origin_type is Union or origin_type is UnionType:
@@ -88,7 +88,7 @@ class FromOrmToDataclass(ToDTOConverter):
 
     def _get_list_of_dataclass_objects(
         self, field_data: Manager, field_type: T
-    ) -> List[dataclass]:
+    ) -> list[dataclass]:
         values_lst = []
         try:
             for orm_obj in field_data.all():
@@ -112,7 +112,7 @@ class FromOrmToDataclass(ToDTOConverter):
             return dc
         raise ConversionError(f"The 'dc' arg should be dataclass type, not {type(dc)} type")
 
-    def _check_future_dataclasses_arg(self, future_dataclasses: Tuple[dataclass]) -> None:
+    def _check_future_dataclasses_arg(self, future_dataclasses: tuple[dataclass]) -> None:
         if future_dataclasses is None:
             return
         for dc in future_dataclasses:
@@ -124,7 +124,7 @@ class FromOrmToDataclass(ToDTOConverter):
             self._future_dataclasses.append(dc)
 
     @staticmethod
-    def _is_data_dj_model_type(data: Model):
+    def _is_data_dj_model_type(data: Model) -> Model:
         if isinstance(data, Model):
             return data
         raise ConversionError(
