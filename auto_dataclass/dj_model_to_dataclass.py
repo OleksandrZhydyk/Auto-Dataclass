@@ -53,10 +53,8 @@ class FromOrmToDataclass(ToDTOConverter):
         return dc(**obj_for_dataclass)
 
     @staticmethod
-    def _is_field_name_exists_in_data(data: Model, field: dataclasses.Field) -> bool | None:
-        if hasattr(data, field.name):
-            return True
-        return False
+    def _is_field_name_exists_in_data(data: Model, field: dataclasses.Field) -> bool:
+        return hasattr(data, field.name)
 
     @staticmethod
     def _get_default_value_or_error(field: dataclasses.Field, data: Model):
